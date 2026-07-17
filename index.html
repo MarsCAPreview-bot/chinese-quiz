@@ -22,9 +22,26 @@
         }
         .intro {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-size: 1.1em;
             color: #555;
+        }
+        /* 成績看板樣式 */
+        .score-board {
+            display: none; /* 預設隱藏，對答後顯示 */
+            background-color: #ebf5fb;
+            border: 2px solid #3498db;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.2em;
+            color: #2c3e50;
+        }
+        .score-board span {
+            font-weight: bold;
+            color: #e74c3c;
+            font-size: 1.4em;
         }
         .question-block {
             background-color: #fff;
@@ -95,10 +112,30 @@
             cursor: pointer;
             transition: background-color 0.3s;
             margin-top: 30px;
-            margin-bottom: 50px;
+            margin-bottom: 20px;
         }
         .btn-submit:hover {
             background-color: #2980b9;
+        }
+        .btn-explanation {
+            display: none; /* 預設隱藏，對答後會透過 JS 顯示 */
+            width: 100%;
+            background-color: #27ae60;
+            color: #fff;
+            border: none;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            margin-bottom: 50px;
+            box-sizing: border-box;
+        }
+        .btn-explanation:hover {
+            background-color: #2ecc71;
         }
         /* 錯誤與正確狀態的樣式 */
         .question-block.error {
@@ -107,6 +144,7 @@
         }
         .question-block.correct {
             border-color: #2ecc71;
+            background-color: #f4fbf7;
         }
         .error-message {
             display: none;
@@ -124,7 +162,12 @@
 <body>
 
     <h1>第一冊與第二冊國文線上測驗</h1>
-    <p class="intro">請勾選各題的答案。作答完畢後，按下最下方的「送出對答」按鈕，系統將即時標記出錯誤的題目。</p>
+    <p class="intro">請勾選各題的答案。作答完畢後，按下最下方的「送出對答」按鈕，系統將即時標記出錯誤的題目，並提供解析連結與成績計算。</p>
+
+    <!-- 頂部成績看板 -->
+    <div id="top-score-board" class="score-board">
+        本次測驗得分：答對 <span id="top-correct-count">0</span> 題 / 共 <span id="top-total-count">0</span> 題（答對率：<span id="top-percentage">0%</span>）
+    </div>
 
     <form id="quiz-form">
         <!-- Q1 -->
@@ -241,7 +284,7 @@
                 <li><label><input type="radio" name="q8" value="C"> <span>(C) 頃刻間這周遭瀰漫了清晨富麗的溫柔...</span></label></li>
                 <li><label><input type="radio" name="q8" value="D"> <span>(D) 有一些事,卻像夏日的小河... <span class="reference-tag">對應教材: 翰版第二冊第三課《紙船印象》</span></span></label></li>
             </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
+            <div class="error-message">❌ 答錯了！請再想想看.</div>
         </div>
 
         <!-- Q9 -->
@@ -392,7 +435,13 @@
             <div class="error-message">❌ 答錯了！請再想想看。</div>
         </div>
 
+        <!-- 底部成績看板 -->
+        <div id="bottom-score-board" class="score-board">
+            本次測驗得分：答對 <span id="bottom-correct-count">0</span> 題 / 共 <span id="bottom-total-count">0</span> 題（答對率：<span id="bottom-percentage">0%</span>）
+        </div>
+
         <button type="button" class="btn-submit" onclick="checkAnswers()">送出對答</button>
+        <a href="115會考國文解析.pdf" id="explanation-btn" class="btn-explanation" target="_blank">查看完整 PDF 解析</a>
     </form>
 
     <script>
@@ -404,9 +453,10 @@
         };
 
         function checkAnswers() {
-            let hasUnanswered = false;
+            let correctCount = 0;
+            const totalCount = Object.keys(answers).length;
 
-            // 針對每一題進行判斷
+            // 針對每一題進行判斷與給分
             for (let q in answers) {
                 const block = document.getElementById('block-' + q);
                 const selected = document.querySelector(`input[name="${q}"]:checked`);
@@ -415,26 +465,38 @@
                 block.classList.remove('error', 'correct');
                 
                 if (!selected) {
-                    // 若未作答，視為錯誤
+                    // 1. 若未作答直接算錯
                     block.classList.add('error');
-                    hasUnanswered = true;
                 } else if (selected.value === answers[q]) {
-                    // 答案正確
+                    // 答案正確，加分
                     block.classList.add('correct');
+                    correctCount++;
                 } else {
                     // 答案錯誤
                     block.classList.add('error');
                 }
             }
 
-            if (hasUnanswered) {
-                alert('提醒：有部分題目尚未作答，系統已將未作答的題目一併標記為錯誤。');
-            } else {
-                alert('對答完成！\n紅色外框代表錯誤，綠色外框代表正確。');
-            }
+            // 3. 計算成績百分比
+            const percentage = Math.round((correctCount / totalCount) * 100) + '%';
+
+            // 更新頂部成績看板
+            document.getElementById('top-correct-count').innerText = correctCount;
+            document.getElementById('top-total-count').innerText = totalCount;
+            document.getElementById('top-percentage').innerText = percentage;
+            document.getElementById('top-score-board').style.display = 'block';
+
+            // 更新底部成績看板
+            document.getElementById('bottom-correct-count').innerText = correctCount;
+            document.getElementById('bottom-total-count').innerText = totalCount;
+            document.getElementById('bottom-percentage').innerText = percentage;
+            document.getElementById('bottom-score-board').style.display = 'block';
             
-            // 畫面回到頂部方便使用者檢查
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // 2. 顯示 PDF 解析按鈕連結
+            document.getElementById('explanation-btn').style.display = 'block';
+
+            // 1. 平滑滾動直接跳轉到第 1 題進行訂正
+            document.getElementById('block-q1').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>
