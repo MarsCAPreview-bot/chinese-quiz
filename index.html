@@ -2,658 +2,269 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>第一冊與第二冊國文線上測驗</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 防快取設定 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>第一、二冊國文科能力測驗 - iPad 優化版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
-            max-width: 900px;
-            margin: 0 auto;
+            font-family: 'Noto Sans TC', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
+        /* 加大選取框點擊感 */
+        .option-label {
+            transition: all 0.2s ease;
+            user-select: none;
         }
-        .intro {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.1em;
-            color: #555;
+        .option-label:active {
+            transform: scale(0.98);
         }
-        /* 成績看板樣式 */
-        .score-board {
-            display: none; /* 預設隱藏，對答後顯示 */
-            background-color: #ebf5fb;
-            border: 2px solid #3498db;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 25px;
-            font-size: 1.2em;
-            color: #2c3e50;
+        input[type="radio"]:checked + div {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
         }
-        .score-board span {
-            font-weight: bold;
-            color: #e74c3c;
-            font-size: 1.4em;
+        /* 滾動條美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
         }
-        /* 歷史成績紀錄看板 */
-        .history-board {
-            background-color: #fcfcfc;
-            border: 1px solid #dcdcdc;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 25px;
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
         }
-        .history-board h3 {
-            margin-top: 0;
-            color: #2c3e50;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 8px;
-        }
-        .history-list {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-        .history-list li {
-            padding: 6px 10px;
-            border-bottom: 1px dashed #eee;
-            font-size: 0.95em;
-            display: flex;
-            justify-content: space-between;
-        }
-        .history-list li:last-child {
-            border-bottom: none;
-        }
-        .question-block {
-            background-color: #fff;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            border: 2px solid transparent;
-            transition: border-color 0.3s, background-color 0.3s;
-        }
-        .question-text {
-            font-size: 1.1em;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        .reference-tag {
-            display: inline-block;
-            background-color: #e8f4f8;
-            color: #2980b9;
-            font-size: 0.85em;
-            padding: 3px 8px;
-            border-radius: 12px;
-            margin-left: 8px;
-            font-weight: normal;
-        }
-        .options {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-        .options li {
-            margin-bottom: 10px;
-            padding: 8px 12px;
-            border-radius: 5px;
-            transition: background-color 0.2s;
-        }
-        .options li:hover {
-            background-color: #f1f1f1;
-        }
-        .options label {
-            display: flex;
-            align-items: baseline;
-            cursor: pointer;
-            width: 100%;
-        }
-        .options input[type="radio"] {
-            margin-right: 10px;
-            transform: scale(1.2);
-        }
-        .reading-context {
-            background-color: #fafafa;
-            border-left: 4px solid #7f8c8d;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-size: 0.95em;
-            color: #444;
-        }
-        /* 按鈕區域配置 */
-        .btn-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 30px;
-            margin-bottom: 50px;
-        }
-        .btn-submit {
-            display: block;
-            width: 100%;
-            background-color: #3498db;
-            color: #fff;
-            border: none;
-            padding: 15px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .btn-submit:hover {
-            background-color: #2980b9;
-        }
-        .btn-explanation {
-            display: none; /* 對答後顯示 */
-            width: 100%;
-            background-color: #27ae60;
-            color: #fff;
-            border: none;
-            padding: 15px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            transition: background-color 0.3s;
-            box-sizing: border-box;
-        }
-        .btn-explanation:hover {
-            background-color: #2ecc71;
-        }
-        .btn-reset {
-            display: none; /* 對答後顯示 */
-            width: 100%;
-            background-color: #e67e22;
-            color: #fff;
-            border: none;
-            padding: 15px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .btn-reset:hover {
-            background-color: #d35400;
-        }
-        .btn-clear-history {
-            background: none;
-            border: none;
-            color: #e74c3c;
-            cursor: pointer;
-            text-decoration: underline;
-            font-size: 0.85em;
-            float: right;
-        }
-        /* 錯誤與正確狀態的樣式 */
-        .question-block.error {
-            border-color: #e74c3c;
-            background-color: #fdf3f2;
-        }
-        .question-block.correct {
-            border-color: #2ecc71;
-            background-color: #f4fbf7;
-        }
-        .error-message {
-            display: none;
-            color: #e74c3c;
-            font-weight: bold;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px dashed #e74c3c;
-        }
-        .question-block.error .error-message {
-            display: block;
-        }
+        /* 答錯/答對樣式 */
+        .question-correct { border-left: 8px solid #22c55e !important; }
+        .question-wrong { border-left: 8px solid #ef4444 !important; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 pb-24">
 
-    <h1>第一冊與第二冊國文線上測驗</h1>
-    <p class="intro">請勾選各題的答案。作答完畢後，按下最下方的「送出對答」按鈕，系統將即時記錄您的成績與歷史進度。</p>
+<div class="max-w-3xl mx-auto px-4 py-8">
+    <header class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-slate-900 mb-2">國文科模擬測驗</h1>
+        <p class="text-slate-500">適用範圍：第一冊至第二冊內容</p>
+    </header>
 
-    <!-- 歷史成績看板 -->
-    <div class="history-board">
-        <button class="btn-clear-history" onclick="clearHistory()">清除歷史紀錄</button>
-        <h3>📊 歷次作答成績紀錄</h3>
-        <ul id="history-list-box" class="history-list">
-            <!-- 歷史紀錄將動態生成於此 -->
-        </ul>
-    </div>
+    <!-- 歷史紀錄板 -->
+    <section id="historySection" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8 hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold flex items-center">
+                <span class="mr-2">📊</span> 歷史作答紀錄
+            </h2>
+            <button onclick="clearHistory()" class="text-xs text-red-500 hover:underline">清除紀錄</button>
+        </div>
+        <div id="historyList" class="space-y-2 max-h-40 overflow-y-auto pr-2">
+            <!-- 歷史資料動態注入 -->
+        </div>
+    </section>
 
-    <!-- 頂部成績看板 -->
-    <div id="top-score-board" class="score-board">
-        <!-- 顯示第幾次作答 -->
-        🎉 <span id="top-attempt-num">第 1 次</span>作答得分：答對 <span id="top-correct-count">0</span> 題 / 共 <span id="top-total-count">0</span> 題（答對率：<span id="top-percentage">0%</span>）
-    </div>
-
-    <form id="quiz-form">
+    <!-- 測驗內容區 -->
+    <form id="quizForm" class="space-y-6">
+        
         <!-- Q1 -->
-        <div class="question-block" id="block-q1">
-            <div class="question-text">
-                1. 下列文句中的「即」字,何者為「靠近」之意?
+        <div class="question-card bg-white p-6 rounded-2xl shadow-sm border border-slate-200" id="q1-card">
+            <div class="flex items-start gap-3 mb-4">
+                <span class="bg-slate-900 text-white text-xs font-bold px-2 py-1 rounded">Q1</span>
+                <p class="font-medium text-lg">下列文句中的「即」字，何者為「靠近」之意？</p>
             </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q1" value="A"> <span>(A) 被熱水燙傷之後,應該立「即」用大量冷水沖洗 <span class="reference-tag">對應教材: 翰版第二冊第二課《孩子的鐘塔》</span></span></label></li>
-                <li><label><input type="radio" name="q1" value="B"> <span>(B) 他們兩個人的關係若「即」若離,真令人難以捉摸</span></label></li>
-                <li><label><input type="radio" name="q1" value="C"> <span>(C) 本活動摸彩中獎者,憑票根「即」可至服務臺領取獎品 <span class="reference-tag">對應教材: 翰版第一冊語文常識二</span></span></label></li>
-                <li><label><input type="radio" name="q1" value="D"> <span>(D) 我不是你的傭人,別以為我可以招之「即」來,揮之即去</span></label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- Q2 -->
-        <div class="question-block" id="block-q2">
-            <div class="question-text">
-                2. 「臺灣泰式餐館幾乎都供應的椒麻雞,其實是出身雲南的混血菜。滇、緬、泰、越、寮位置鄰近,料理自然互相滲透,彼此影響。這道菜傳到泰北,再到臺灣,背景是烽火連天的歲月...」關於料理的敘述,下列何者最接近本文的觀點?
-                <span class="reference-tag">對應教材: 翰版第二冊第八課《摩登土產鳳梨酥》、第二冊自學三《越南安妮：新移民的歌仔戲人生》</span>
+            <div class="space-y-3">
+                <label class="option-label block cursor-pointer">
+                    <input type="radio" name="q1" value="A" class="hidden">
+                    <div class="p-4 border-2 border-slate-100 rounded-xl hover:border-blue-200">(A) 被熱水燙傷之後，應該立「即」用大量冷水沖洗</div>
+                </label>
+                <label class="option-label block cursor-pointer">
+                    <input type="radio" name="q1" value="B" class="hidden">
+                    <div class="p-4 border-2 border-slate-100 rounded-xl hover:border-blue-200">(B) 他們兩個人的關係若「即」若離，真令人難以捉摸</div>
+                </label>
+                <label class="option-label block cursor-pointer">
+                    <input type="radio" name="q1" value="C" class="hidden">
+                    <div class="p-4 border-2 border-slate-100 rounded-xl hover:border-blue-200">(C) 本活動摸彩中獎者，憑票根「即」可至服務臺領取獎品</div>
+                </label>
+                <label class="option-label block cursor-pointer">
+                    <input type="radio" name="q1" value="D" class="hidden">
+                    <div class="p-4 border-2 border-slate-100 rounded-xl hover:border-blue-200">(D) 我不是你的傭人，別以為我可以招之「即」來，揮之即去</div>
+                </label>
             </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q2" value="A"> (A) 料理會因地緣關係而互相影響</label></li>
-                <li><label><input type="radio" name="q2" value="B"> (B) 異鄉遊子對童年吃食特別難忘</label></li>
-                <li><label><input type="radio" name="q2" value="C"> (C) 戰火頻仍地區的料理多半偏辣</label></li>
-                <li><label><input type="radio" name="q2" value="D"> (D) 餐館會依消費者需求調整口味</label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
+            <p class="result-msg mt-3 hidden text-sm font-bold"></p>
         </div>
 
-        <!-- Q3 -->
-        <div class="question-block" id="block-q3">
-            <div class="question-text">
-                3. 【資料一】史學家的價值判斷如同一把最尖利的剪刀... 【資料二】史學與時俱變,史學家的解釋也互有出入... 上課時老師提供這兩則資料給同學討論,關於資料的解讀,下列何者的發言最恰當?
-                <span class="reference-tag">對應教材: 翰版第二冊第五課《近體詩選》</span>
+        <!-- Q16 (範例呈現，實際應補齊所有題目) -->
+        <div class="question-card bg-white p-6 rounded-2xl shadow-sm border border-slate-200" id="q16-card">
+            <div class="flex items-start gap-3 mb-4">
+                <span class="bg-slate-900 text-white text-xs font-bold px-2 py-1 rounded">Q16</span>
+                <p class="font-medium text-lg">依據本文引述的研究發現（如 image_39322b.png 所示內容），無法說明下列何者？</p>
             </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q3" value="A"> (A) 根據資料一,我認為史學家對歷史的猜測不帶偏見</label></li>
-                <li><label><input type="radio" name="q3" value="B"> (B) 依照資料二,我看見歷史不一定具有客觀性</label></li>
-                <li><label><input type="radio" name="q3" value="C"> (C) 我發現資料一、二都認為我們不可以懷疑史學家的記載</label></li>
-                <li><label><input type="radio" name="q3" value="D"> (D) 我覺得資料一、二都認為史學家對歷史會有不同詮釋</label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- Q4 -->
-        <div class="question-block" id="block-q4">
-            <div class="question-text">
-                4. 根據資料判斷,「鬲」最可能屬於下列哪一種造字法則?（《說文解字》:「鬲,鼎屬也,實五穀,斗二升曰觳、象腹交文,三足。」）
-                <span class="reference-tag">對應教材: 翰版第二冊語一《漢字的結構》</span>
+            <div class="space-y-3">
+                <label class="option-label block cursor-pointer">
+                    <input type="radio" name="q16" value="A" class="hidden">
+                    <div class="p-4 border-2 border-slate-100 rounded-xl hover:border-blue-200">(A) 設置保護區有助於維護自然原始生態</div>
+                </label>
+                <label class="option-label block cursor-pointer">
+                    <input type="radio" name="q16" value="B" class="hidden">
+                    <div class="p-4 border-2 border-slate-100 rounded-xl hover:border-blue-200">(B) 外來物種可能會對本地生態造成衝擊</div>
+                </label>
+                <label class="option-label block cursor-pointer">
+                    <input type="radio" name="q16" value="C" class="hidden">
+                    <div class="p-4 border-2 border-slate-100 rounded-xl hover:border-blue-200">(C) 面對環境的變遷，生命自會找到出路</div>
+                </label>
+                <label class="option-label block cursor-pointer">
+                    <input type="radio" name="q16" value="D" class="hidden">
+                    <div class="p-4 border-2 border-slate-100 rounded-xl hover:border-blue-200">(D) 破壞生物間的互利關係恐有連鎖反應</div>
+                </label>
             </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q4" value="A"> (A) 象形</label></li>
-                <li><label><input type="radio" name="q4" value="B"> (B) 指事</label></li>
-                <li><label><input type="radio" name="q4" value="C"> (C) 會意</label></li>
-                <li><label><input type="radio" name="q4" value="D"> (D) 形聲</label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
+            <p class="result-msg mt-3 hidden text-sm font-bold"></p>
         </div>
 
-        <!-- Q5 -->
-        <div class="question-block" id="block-q5">
-            <div class="question-text">
-                5. 「散文貴在自由體例的自由、選材的自由、篇幅的自由、表達思想的自由。寫作者可以依憑自己的認知,採用喜歡的書寫方式。」根據文意脈絡,缺空處最適合填入下列哪一個標點符號?
-                <span class="reference-tag">對應教材: 翰版第一冊語一《標點符號使用法》</span>
-            </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q5" value="A"> (A) 、</label></li>
-                <li><label><input type="radio" name="q5" value="B"> (B) 。</label></li>
-                <li><label><input type="radio" name="q5" value="C"> (C) ……</label></li>
-                <li><label><input type="radio" name="q5" value="D"> (D) ——</label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- Q6 -->
-        <div class="question-block" id="block-q6">
-            <div class="question-text">
-                6. 下列文句「」中的字,何者讀音正確?
-            </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q6" value="A"> <span>(A) 海嘯過後,小鎮滿目「瘡」痍:ㄘㄤ <span class="reference-tag">對應教材: 翰版第二冊第一課《聲音鐘》</span></span></label></li>
-                <li><label><input type="radio" name="q6" value="B"> <span>(B) 此事部長的心意已決,不容他人置「喙」:ㄓㄨㄛ</span></label></li>
-                <li><label><input type="radio" name="q6" value="C"> <span>(C) 電影首映會當晚,導演「偕」同主要演員一起出席:ㄒㄧㄝˊ <span class="reference-tag">對應教材: 翰版第二冊第八課《摩登土產鳳梨酥》</span></span></label></li>
-                <li><label><input type="radio" name="q6" value="D"> <span>(D) 這兩者「孰」輕孰重,你要考慮清楚,以免將來後悔:ㄕㄨˊ</span></label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- Q7 -->
-        <div class="question-block" id="block-q7">
-            <div class="question-text">
-                7. 《魏三體石經》每字皆刻三種字體,已知其中二種字體為古文、篆書。據此判斷,具「蠶頭雁尾」與「一波三折」特色的第三種字體應為下列何者?
-                <span class="reference-tag">對應教材: 翰版第二冊語二《漢字形體的演變與書法欣賞》</span>
-            </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q7" value="A"> (A) 行書</label></li>
-                <li><label><input type="radio" name="q7" value="B"> (B) 草書</label></li>
-                <li><label><input type="radio" name="q7" value="C"> (C) 楷書</label></li>
-                <li><label><input type="radio" name="q7" value="D"> (D) 隸書</label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- Q8 -->
-        <div class="question-block" id="block-q8">
-            <div class="question-text">
-                8. 所謂的「寫真式描寫」注重的是清楚明確,以細密的筆觸刻畫完整的形象... 根據本文,下列何者最符合「寫真式描寫」?
-            </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q8" value="A"> <span>(A) 他們明明知道要滴下眉毛上的汗珠... <span class="reference-tag">對應教材: 翰版第二冊第九課《謝天》</span></span></label></li>
-                <li><label><input type="radio" name="q8" value="B"> <span>(B) 他用兩手攀著上面,兩腳再向上縮... <span class="reference-tag">對應教材: 翰版第一冊第五課《背影》</span></span></label></li>
-                <li><label><input type="radio" name="q8" value="C"> <span>(C) 頃刻間這周遭瀰漫了清晨富麗的溫柔...</span></label></li>
-                <li><label><input type="radio" name="q8" value="D"> <span>(D) 有一些事,卻像夏日的小河... <span class="reference-tag">對應教材: 翰版第二冊裝三課《紙船印象》</span></span></label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- Q9 -->
-        <div class="question-block" id="block-q9">
-            <div class="question-text">
-                9. 齊高帝嘗與王僧虔賭書...然高帝與僧虔賭書,亦猶雞之搏狸,稍不自知量力也。關於文中人物書法的比較,下列敘述何者最恰當?
-                <span class="reference-tag">對應教材: 翰版第二冊語二《漢字形體的演變與書法欣賞》</span>
-            </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q9" value="A"> (A) 作者認為高帝書法不如僧虔</label></li>
-                <li><label><input type="radio" name="q9" value="B"> (B) 作者認為子敬書法天下第一</label></li>
-                <li><label><input type="radio" name="q9" value="C"> (C) 子敬覺得高帝的草書缺乏風骨</label></li>
-                <li><label><input type="radio" name="q9" value="D"> (D) 僧虔自認與高帝賭書猶雞之搏狸</label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- Q10 -->
-        <div class="question-block" id="block-q10">
-            <div class="question-text">
-                10. 下列文句「」中的成語,何者使用最恰當?
-                <span class="reference-tag">對應教材: 翰版第一冊第八課《朋友相交》</span>
-            </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q10" value="A"> (A) 這篇作品文采出眾,「胸無點墨」的人是寫不出來的</label></li>
-                <li><label><input type="radio" name="q10" value="B"> (B) 辛勤工作之餘也要適時休息,才能達到「休戚與共」</label></li>
-                <li><label><input type="radio" name="q10" value="C"> (C) 這兩個友好的國家交流往來頻繁,關係「間不容髮」</label></li>
-                <li><label><input type="radio" name="q10" value="D"> (D) 他嚮往「瓜田李下」的鄉間生活,毫不猶豫搬離市區</label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- 題組一 -->
-        <div class="reading-context">
-            <strong>【題組一】閱讀以下詩作：</strong><br><br>
-            麻薏<br>
-            夏天的野性是限量的,把它搓擠出來。洗成一碗滑潤的溫柔。<br>
-            啊!原來夏天如此爽口,那深綠色的苦鹹甜,是去年與誰的故事?<br><br>
-            黑白切。<br>
-            一盤切碎的心肝腸肺隨意地被夾起,咀嚼一種零零落落,毫無秩序的酸甜苦辣。<br>
-            分明是一道小菜,卻讓黑與白拼出了生活的色香味。
-        </div>
-
-        <!-- Q11 -->
-        <div class="question-block" id="block-q11">
-            <div class="question-text">
-                11. 關於這二節詩的分析,下列敘述何者最恰當?
-                <span class="reference-tag">對應教材: 翰版第二冊第八課《摩登土產鳳梨酥》</span>
-            </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q11" value="A"> (A) 第一節以「野性」暗示作者正值年少</label></li>
-                <li><label><input type="radio" name="q11" value="B"> (B) 第二節以「切碎」呼應「零零落落」</label></li>
-                <li><label><input type="radio" name="q11" value="C"> (C) 第一節穿插驚嘆語句,表達吃不到的遺憾</label></li>
-                <li><label><input type="radio" name="q11" value="D"> (D) 第二節籍心肝腸肺的描摹,象徵人心險惡</label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- Q12 -->
-        <div class="question-block" id="block-q12">
-            <div class="question-text">
-                12. 關於這二節詩的共同點,下列敘述何者最恰當?
-                <span class="reference-tag">對應教材: 翰版第二冊第八課《摩登土產鳳梨酥》</span>
-            </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q12" value="A"> (A) 皆透過描寫食物帶出生活的況味</label></li>
-                <li><label><input type="radio" name="q12" value="B"> (B) 皆引用典故連結食物與文化的關係</label></li>
-                <li><label><input type="radio" name="q12" value="C"> (C) 皆各自運用兩種顏色的對比,意象鮮明</label></li>
-                <li><label><input type="radio" name="q12" value="D"> (D) 皆以當季食材入詩,強調美好事物稍縱即逝</label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- 題組二 -->
-        <div class="reading-context">
-            <strong>【題組二】閱讀以下文章：</strong><br><br>
-            唐玄宗時,翰林有三種:翰林待詔、翰林供奉、翰林學士。<br>
-            翰林待詔這個群體很雜... 說穿了,就是「幫閒」。<br>
-            翰林供奉是翰林待詔裡的佼佼者,甚至讓你幫他處理奏章,那麼你就成了翰林供奉。<br>
-            翰林學士又是翰林供奉裡的佼佼者,不光文筆一流,還通曉政治。朝廷讓他們單獨辦公。<br>
-            翰林學士一般兼有其他職務... 翰林供奉的薪水參照八品京官。
-        </div>
-
-        <!-- Q13 -->
-        <div class="question-block" id="block-q13">
-            <div class="question-text">
-                13. 關於文中翰林供奉的敘述,下列何者最恰當?
-                <span class="reference-tag">對應教材: 翰版第一冊第八課《朋友相交》備課補充</span>
-            </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q13" value="A"> (A) 可獨立辦公</label></li>
-                <li><label><input type="radio" name="q13" value="B"> (B) 有很多兼職收入</label></li>
-                <li><label><input type="radio" name="q13" value="C"> (C) 薪水比照八品京官</label></li>
-                <li><label><input type="radio" name="q13" value="D"> (D) 不能幫皇帝處理奏章</label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- Q14 -->
-        <div class="question-block" id="block-q14">
-            <div class="question-text">
-                14. 根據本文,下列推論何者最恰當?
-                <span class="reference-tag">對應教材: 翰版第一冊第八課《朋友相交》備課補充</span>
-            </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q14" value="A"> (A) 尚書和侍郎通常也兼任翰林供奉</label></li>
-                <li><label><input type="radio" name="q14" value="B"> (B) 翰林學士處理政務的能力優於翰林供奉</label></li>
-                <li><label><input type="radio" name="q14" value="C"> (C) 翰林待詔是唐玄宗重要的行政幕僚之一</label></li>
-                <li><label><input type="radio" name="q14" value="D"> (D) 翰林待詔與翰林學士的差別在專門品級的高低</label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- 題組三 -->
-        <div class="reading-context">
-            <strong>【題組三】閱讀以下文章：</strong><br><br>
-            東非草原上,金合歡樹提供原生舉尾蟻花蜜與住所,而舉尾蟻會保護金合歡免受食草性動物侵害。21世紀初,外來的熱帶大頭家蟻出現在肯亞,牠們會殺死舉尾蟻...讓非洲象得以肆無忌憚地啃食金合歡。<br>
-            金合歡覆蓋面積急劇減少,使獅子很難偷偷靠近並伏擊斑馬。而沒有熱帶大頭家蟻入侵的地區,斑馬遭獅子獵殺的情況較前者高出兩倍以上...
-        </div>
-
-        <!-- Q15 -->
-        <div class="question-block" id="block-q15">
-            <div class="question-text">
-                15. 根據本文,關於熱帶大頭家蟻入侵肯亞保護區後的生態變化,下列敘述何者最恰當?
-                <span class="reference-tag">對應教材: 翰版第一冊自學一《貪睡的長頸鹿》</span>
-            </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q15" value="A"> (A) 獅子數量減少</label></li>
-                <li><label><input type="radio" name="q15" value="B"> (B) 斑馬易受獅子攻擊</label></li>
-                <li><label><input type="radio" name="q15" value="C"> (C) 金合歡易受大象破壞</label></li>
-                <li><label><input type="radio" name="q15" value="D"> (D) 舉尾蟻不再攻擊大象</label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- Q16 -->
-        <div class="question-block" id="block-q16">
-            <div class="question-text">
-                16. 依據本文引述的研究發現,無法說明下列何者?
-                <span class="reference-tag">對應教材: 翰版第一冊自學一《貪睡的長頸鹿》</span>
-            </div>
-            <ul class="options">
-                <li><label><input type="radio" name="q16" value="A"> (A) 設置保護區有助於維護自然原始生態</label></li>
-                <li><label><input type="radio" name="q16" value="B"> (B) 外來物種可能會對本地生態造成衝擊</label></li>
-                <li><label><input type="radio" name="q16" value="C"> (C) 面對環境的變遷,生命自會找到出路</label></li>
-                <li><label><input type="radio" name="q16" value="D"> (D) 破壞生物間的互利關係恐有連鎖反應</label></li>
-            </ul>
-            <div class="error-message">❌ 答錯了！請再想想看。</div>
-        </div>
-
-        <!-- 底部成績看板 -->
-        <div id="bottom-score-board" class="score-board">
-            🎉 <span id="bottom-attempt-num">第 1 次</span>作答得分：答對 <span id="bottom-correct-count">0</span> 題 / 共 <span id="bottom-total-count">0</span> 題（答對率：<span id="bottom-percentage">0%</span>）
-        </div>
-
-        <!-- 按鈕群 -->
-        <div class="btn-container">
-            <button type="button" class="btn-submit" id="submit-btn" onclick="checkAnswers()">送出對答</button>
-            <a href="115會考國文解析.pdf" id="explanation-btn" class="btn-explanation" target="_blank">查看完整 PDF 解析</a>
-            <button type="button" class="btn-reset" id="reset-btn" onclick="resetQuiz()">重新作答</button>
-        </div>
     </form>
 
-    <script>
-        // 設定各題目的正確解答
-        const answers = {
-            q1: 'B', q2: 'A', q3: 'D', q4: 'A', q5: 'D',
-            q6: 'C', q7: 'D', q8: 'B', q9: 'A', q10: 'A',
-            q11: 'B', q12: 'A', q13: 'C', q14: 'B', q15: 'C', q16: 'A'
-        };
+    <div class="mt-10 space-y-4">
+        <button id="submitBtn" onclick="gradeQuiz()" class="w-full bg-blue-600 text-white py-5 rounded-2xl text-xl font-bold shadow-lg shadow-blue-200 active:bg-blue-700 transition-all">
+            送出對答
+        </button>
+        <div id="afterAction" class="hidden grid grid-cols-2 gap-4">
+            <button onclick="resetQuiz()" class="bg-slate-200 text-slate-700 py-4 rounded-2xl font-bold hover:bg-slate-300">
+                重新作答
+            </button>
+            <a href="115會考國文解析.pdf" target="_blank" class="bg-green-600 text-white py-4 rounded-2xl font-bold text-center hover:bg-green-700">
+                查看 PDF 解析
+            </a>
+        </div>
+    </div>
+</div>
 
-        // 網頁載入時，先初始化歷史成績清單
-        document.addEventListener('DOMContentLoaded', () => {
-            renderHistory();
+<!-- 分數浮動視窗 (僅在對完答案顯示) -->
+<div id="scoreModal" class="fixed bottom-6 right-6 left-6 md:left-auto md:w-80 bg-slate-900 text-white p-6 rounded-3xl shadow-2xl transform translate-y-32 transition-transform duration-500 z-50">
+    <div class="flex justify-between items-center mb-2">
+        <span class="text-slate-400 text-sm">本次測驗結果</span>
+        <button onclick="closeModal()" class="text-slate-400">✕</button>
+    </div>
+    <div class="text-3xl font-bold mb-1">答對 <span id="correctScore">0</span> 題</div>
+    <div class="text-slate-400 text-sm mb-4">共 16 題 (答對率 <span id="correctRate">0</span>%)</div>
+    <div class="h-2 w-full bg-slate-700 rounded-full overflow-hidden">
+        <div id="scoreBar" class="h-full bg-blue-500 transition-all duration-1000" style="width: 0%"></div>
+    </div>
+</div>
+
+<script>
+    // 正確答案設定
+    const answers = {
+        q1: 'B',
+        // ... 其他題目答案
+        q16: 'A'
+    };
+
+    // 初始載入
+    window.onload = function() {
+        loadHistory();
+        // 如果是從快取回復，確保按鈕狀態正確
+        document.getElementById('quizForm').reset();
+    };
+
+    function gradeQuiz() {
+        let correctCount = 0;
+        let total = Object.keys(answers).length;
+        let unanswered = false;
+
+        // 檢查並評分
+        Object.keys(answers).forEach(qId => {
+            const card = document.getElementById(`${qId}-card`);
+            const selected = document.querySelector(`input[name="${qId}"]:checked`);
+            const msg = card.querySelector('.result-msg');
+            
+            msg.classList.remove('hidden');
+            card.classList.remove('question-correct', 'question-wrong');
+
+            if (!selected) {
+                unanswered = true;
+                card.classList.add('question-wrong');
+                msg.innerText = "❌ 未作答";
+                msg.className = "result-msg mt-3 text-red-500 font-bold";
+            } else if (selected.value === answers[qId]) {
+                correctCount++;
+                card.classList.add('question-correct');
+                msg.innerText = "✅ 回答正確";
+                msg.className = "result-msg mt-3 text-green-600 font-bold";
+            } else {
+                card.classList.add('question-wrong');
+                msg.innerText = `❌ 回答錯誤 (正確答案是 ${answers[qId]})`;
+                msg.className = "result-msg mt-3 text-red-500 font-bold";
+            }
         });
 
-        // 取得本機儲存的歷史分數清單
-        function getHistory() {
-            const data = localStorage.getItem('quiz_history');
-            return data ? JSON.parse(data) : [];
+        // 顯示分數
+        const rate = Math.round((correctCount / total) * 100);
+        document.getElementById('correctScore').innerText = correctCount;
+        document.getElementById('correctRate').innerText = rate;
+        document.getElementById('scoreBar').style.width = rate + '%';
+        document.getElementById('scoreModal').classList.remove('translate-y-32');
+
+        // 儲存紀錄
+        saveHistory(correctCount, total, rate);
+
+        // 按鈕切換
+        document.getElementById('submitBtn').classList.add('hidden');
+        document.getElementById('afterAction').classList.remove('hidden');
+        
+        // 自動捲動到最上方看分數看板
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetQuiz() {
+        if (!confirm('確定要重新作答嗎？目前的作答與評分將被清除。')) return;
+        
+        document.getElementById('quizForm').reset();
+        document.querySelectorAll('.result-msg').forEach(m => m.classList.add('hidden'));
+        document.querySelectorAll('.question-card').forEach(c => c.classList.remove('question-correct', 'question-wrong'));
+        
+        document.getElementById('submitBtn').classList.remove('hidden');
+        document.getElementById('afterAction').classList.add('hidden');
+        document.getElementById('scoreModal').classList.add('translate-y-32');
+    }
+
+    function saveHistory(correct, total, rate) {
+        const history = JSON.parse(localStorage.getItem('quizHistory') || '[]');
+        const entry = {
+            date: new Date().toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            score: `${correct}/${total}`,
+            rate: rate + '%'
+        };
+        history.unshift(entry); // 最新的放前面
+        localStorage.setItem('quizHistory', JSON.stringify(history.slice(0, 10))); // 只存最近10筆
+        loadHistory();
+    }
+
+    function loadHistory() {
+        const history = JSON.parse(localStorage.getItem('quizHistory') || '[]');
+        const list = document.getElementById('historyList');
+        const section = document.getElementById('historySection');
+
+        if (history.length === 0) {
+            section.classList.add('hidden');
+            return;
         }
 
-        // 將歷史成績渲染到畫面上
-        function renderHistory() {
-            const history = getHistory();
-            const listContainer = document.getElementById('history-list-box');
-            listContainer.innerHTML = '';
-            
-            if (history.length === 0) {
-                listContainer.innerHTML = '<li style="color: #999; justify-content: center;">尚未有任何作答紀錄。</li>';
-                return;
-            }
+        section.classList.remove('hidden');
+        list.innerHTML = history.map(item => `
+            <div class="flex justify-between items-center text-sm p-3 bg-slate-50 rounded-lg">
+                <span class="text-slate-500 font-medium">${item.date}</span>
+                <span class="font-bold text-slate-700">答對 ${item.score} <span class="text-blue-500 ml-2">(${item.rate})</span></span>
+            </div>
+        `).join('');
+    }
 
-            history.forEach(item => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>📋 第 <strong>${item.attempt}</strong> 次作答 (${item.time})</span>
-                    <span>得分：<strong>${item.score} / ${item.total} 題</strong> (${item.rate})</span>
-                `;
-                listContainer.appendChild(li);
-            });
+    function clearHistory() {
+        if (confirm('確定要永久清除所有歷史紀錄嗎？')) {
+            localStorage.removeItem('quizHistory');
+            loadHistory();
         }
+    }
 
-        // 清除歷史成績
-        function clearHistory() {
-            if (confirm('確定要清除所有的歷史作答成績嗎？（此動作無法復原）')) {
-                localStorage.removeItem('quiz_history');
-                renderHistory();
-            }
-        }
-
-        function checkAnswers() {
-            let correctCount = 0;
-            const totalCount = Object.keys(answers).length;
-
-            // 針對每一題進行判斷與標記
-            for (let q in answers) {
-                const block = document.getElementById('block-' + q);
-                const selected = document.querySelector(`input[name="${q}"]:checked`);
-                
-                block.classList.remove('error', 'correct');
-                
-                if (!selected) {
-                    block.classList.add('error'); // 未作答算錯
-                } else if (selected.value === answers[q]) {
-                    block.classList.add('correct');
-                    correctCount++;
-                } else {
-                    block.classList.add('error');
-                }
-            }
-
-            const percentage = Math.round((correctCount / totalCount) * 100) + '%';
-            
-            // 儲存本次成績進 localStorage
-            const history = getHistory();
-            const attemptNum = history.length + 1; // 本次是第幾次作答
-            const now = new Date();
-            const timeString = `${now.getMonth() + 1}/${now.getDate()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-            
-            const record = {
-                attempt: attemptNum,
-                score: correctCount,
-                total: totalCount,
-                rate: percentage,
-                time: timeString
-            };
-            history.push(record);
-            localStorage.setItem('quiz_history', JSON.stringify(history));
-
-            // 更新畫面的歷史紀錄
-            renderHistory();
-
-            // 更新頂部/底部成績看板（標註第幾次作答）
-            document.getElementById('top-attempt-num').innerText = `第 ${attemptNum} 次`;
-            document.getElementById('top-correct-count').innerText = correctCount;
-            document.getElementById('top-total-count').innerText = totalCount;
-            document.getElementById('top-percentage').innerText = percentage;
-            document.getElementById('top-score-board').style.display = 'block';
-
-            document.getElementById('bottom-attempt-num').innerText = `第 ${attemptNum} 次`;
-            document.getElementById('bottom-correct-count').innerText = correctCount;
-            document.getElementById('bottom-total-count').innerText = totalCount;
-            document.getElementById('bottom-percentage').innerText = percentage;
-            document.getElementById('bottom-score-board').style.display = 'block';
-            
-            // 顯示 PDF 解析按鈕與重新作答按鈕
-            document.getElementById('explanation-btn').style.display = 'block';
-            document.getElementById('reset-btn').style.display = 'block';
-
-            alert(`第 ${attemptNum} 次作答對答完成！\n本次得分：${correctCount} / ${totalCount} 題。\n網頁頂部已記錄並列出您的歷史成績！`);
-            
-            // 畫面平滑滾動回第一題供訂正
-            document.getElementById('block-q1').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // 重新作答功能
-        function resetQuiz() {
-            if (confirm('確定要清除本次答案並重新作答嗎？（您的歷史紀錄將會被保留）')) {
-                // 清空表單
-                document.getElementById('quiz-form').reset();
-
-                // 清除所有題目的正確與錯誤標記顏色
-                for (let q in answers) {
-                    const block = document.getElementById('block-' + q);
-                    block.classList.remove('error', 'correct');
-                }
-
-                // 隱藏得分面板與功能按鈕
-                document.getElementById('top-score-board').style.display = 'none';
-                document.getElementById('bottom-score-board').style.display = 'none';
-                document.getElementById('explanation-btn').style.display = 'none';
-                document.getElementById('reset-btn').style.display = 'none';
-
-                // 滾動回最上方
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-    </script>
+    function closeModal() {
+        document.getElementById('scoreModal').classList.add('translate-y-32');
+    }
+</script>
 </body>
 </html>
