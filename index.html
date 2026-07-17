@@ -43,6 +43,37 @@
             color: #e74c3c;
             font-size: 1.4em;
         }
+        /* 歷史成績紀錄看板 */
+        .history-board {
+            background-color: #fcfcfc;
+            border: 1px solid #dcdcdc;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        .history-board h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 8px;
+        }
+        .history-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .history-list li {
+            padding: 6px 10px;
+            border-bottom: 1px dashed #eee;
+            font-size: 0.95em;
+            display: flex;
+            justify-content: space-between;
+        }
+        .history-list li:last-child {
+            border-bottom: none;
+        }
         .question-block {
             background-color: #fff;
             padding: 20px;
@@ -99,6 +130,14 @@
             font-size: 0.95em;
             color: #444;
         }
+        /* 按鈕區域配置 */
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
         .btn-submit {
             display: block;
             width: 100%;
@@ -111,14 +150,12 @@
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s;
-            margin-top: 30px;
-            margin-bottom: 20px;
         }
         .btn-submit:hover {
             background-color: #2980b9;
         }
         .btn-explanation {
-            display: none; /* 預設隱藏，對答後會透過 JS 顯示 */
+            display: none; /* 對答後顯示 */
             width: 100%;
             background-color: #27ae60;
             color: #fff;
@@ -131,11 +168,35 @@
             text-align: center;
             text-decoration: none;
             transition: background-color 0.3s;
-            margin-bottom: 50px;
             box-sizing: border-box;
         }
         .btn-explanation:hover {
             background-color: #2ecc71;
+        }
+        .btn-reset {
+            display: none; /* 對答後顯示 */
+            width: 100%;
+            background-color: #e67e22;
+            color: #fff;
+            border: none;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-reset:hover {
+            background-color: #d35400;
+        }
+        .btn-clear-history {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 0.85em;
+            float: right;
         }
         /* 錯誤與正確狀態的樣式 */
         .question-block.error {
@@ -162,11 +223,21 @@
 <body>
 
     <h1>第一冊與第二冊國文線上測驗</h1>
-    <p class="intro">請勾選各題的答案。作答完畢後，按下最下方的「送出對答」按鈕，系統將即時標記出錯誤的題目，並提供解析連結與成績計算。</p>
+    <p class="intro">請勾選各題的答案。作答完畢後，按下最下方的「送出對答」按鈕，系統將即時記錄您的成績與歷史進度。</p>
+
+    <!-- 歷史成績看板 -->
+    <div class="history-board">
+        <button class="btn-clear-history" onclick="clearHistory()">清除歷史紀錄</button>
+        <h3>📊 歷次作答成績紀錄</h3>
+        <ul id="history-list-box" class="history-list">
+            <!-- 歷史紀錄將動態生成於此 -->
+        </ul>
+    </div>
 
     <!-- 頂部成績看板 -->
     <div id="top-score-board" class="score-board">
-        本次測驗得分：答對 <span id="top-correct-count">0</span> 題 / 共 <span id="top-total-count">0</span> 題（答對率：<span id="top-percentage">0%</span>）
+        <!-- 顯示第幾次作答 -->
+        🎉 <span id="top-attempt-num">第 1 次</span>作答得分：答對 <span id="top-correct-count">0</span> 題 / 共 <span id="top-total-count">0</span> 題（答對率：<span id="top-percentage">0%</span>）
     </div>
 
     <form id="quiz-form">
@@ -282,9 +353,9 @@
                 <li><label><input type="radio" name="q8" value="A"> <span>(A) 他們明明知道要滴下眉毛上的汗珠... <span class="reference-tag">對應教材: 翰版第二冊第九課《謝天》</span></span></label></li>
                 <li><label><input type="radio" name="q8" value="B"> <span>(B) 他用兩手攀著上面,兩腳再向上縮... <span class="reference-tag">對應教材: 翰版第一冊第五課《背影》</span></span></label></li>
                 <li><label><input type="radio" name="q8" value="C"> <span>(C) 頃刻間這周遭瀰漫了清晨富麗的溫柔...</span></label></li>
-                <li><label><input type="radio" name="q8" value="D"> <span>(D) 有一些事,卻像夏日的小河... <span class="reference-tag">對應教材: 翰版第二冊第三課《紙船印象》</span></span></label></li>
+                <li><label><input type="radio" name="q8" value="D"> <span>(D) 有一些事,卻像夏日的小河... <span class="reference-tag">對應教材: 翰版第二冊裝三課《紙船印象》</span></span></label></li>
             </ul>
-            <div class="error-message">❌ 答錯了！請再想想看.</div>
+            <div class="error-message">❌ 答錯了！請再想想看。</div>
         </div>
 
         <!-- Q9 -->
@@ -437,11 +508,15 @@
 
         <!-- 底部成績看板 -->
         <div id="bottom-score-board" class="score-board">
-            本次測驗得分：答對 <span id="bottom-correct-count">0</span> 題 / 共 <span id="bottom-total-count">0</span> 題（答對率：<span id="bottom-percentage">0%</span>）
+            🎉 <span id="bottom-attempt-num">第 1 次</span>作答得分：答對 <span id="bottom-correct-count">0</span> 題 / 共 <span id="bottom-total-count">0</span> 題（答對率：<span id="bottom-percentage">0%</span>）
         </div>
 
-        <button type="button" class="btn-submit" onclick="checkAnswers()">送出對答</button>
-        <a href="115會考國文解析.pdf" id="explanation-btn" class="btn-explanation" target="_blank">查看完整 PDF 解析</a>
+        <!-- 按鈕群 -->
+        <div class="btn-container">
+            <button type="button" class="btn-submit" id="submit-btn" onclick="checkAnswers()">送出對答</button>
+            <a href="115會考國文解析.pdf" id="explanation-btn" class="btn-explanation" target="_blank">查看完整 PDF 解析</a>
+            <button type="button" class="btn-reset" id="reset-btn" onclick="resetQuiz()">重新作答</button>
+        </div>
     </form>
 
     <script>
@@ -452,51 +527,132 @@
             q11: 'B', q12: 'A', q13: 'C', q14: 'B', q15: 'C', q16: 'A'
         };
 
+        // 網頁載入時，先初始化歷史成績清單
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHistory();
+        });
+
+        // 取得本機儲存的歷史分數清單
+        function getHistory() {
+            const data = localStorage.getItem('quiz_history');
+            return data ? JSON.parse(data) : [];
+        }
+
+        // 將歷史成績渲染到畫面上
+        function renderHistory() {
+            const history = getHistory();
+            const listContainer = document.getElementById('history-list-box');
+            listContainer.innerHTML = '';
+            
+            if (history.length === 0) {
+                listContainer.innerHTML = '<li style="color: #999; justify-content: center;">尚未有任何作答紀錄。</li>';
+                return;
+            }
+
+            history.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>📋 第 <strong>${item.attempt}</strong> 次作答 (${item.time})</span>
+                    <span>得分：<strong>${item.score} / ${item.total} 題</strong> (${item.rate})</span>
+                `;
+                listContainer.appendChild(li);
+            });
+        }
+
+        // 清除歷史成績
+        function clearHistory() {
+            if (confirm('確定要清除所有的歷史作答成績嗎？（此動作無法復原）')) {
+                localStorage.removeItem('quiz_history');
+                renderHistory();
+            }
+        }
+
         function checkAnswers() {
             let correctCount = 0;
             const totalCount = Object.keys(answers).length;
 
-            // 針對每一題進行判斷與給分
+            // 針對每一題進行判斷與標記
             for (let q in answers) {
                 const block = document.getElementById('block-' + q);
                 const selected = document.querySelector(`input[name="${q}"]:checked`);
                 
-                // 重置樣式
                 block.classList.remove('error', 'correct');
                 
                 if (!selected) {
-                    // 1. 若未作答直接算錯
-                    block.classList.add('error');
+                    block.classList.add('error'); // 未作答算錯
                 } else if (selected.value === answers[q]) {
-                    // 答案正確，加分
                     block.classList.add('correct');
                     correctCount++;
                 } else {
-                    // 答案錯誤
                     block.classList.add('error');
                 }
             }
 
-            // 3. 計算成績百分比
             const percentage = Math.round((correctCount / totalCount) * 100) + '%';
+            
+            // 儲存本次成績進 localStorage
+            const history = getHistory();
+            const attemptNum = history.length + 1; // 本次是第幾次作答
+            const now = new Date();
+            const timeString = `${now.getMonth() + 1}/${now.getDate()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            const record = {
+                attempt: attemptNum,
+                score: correctCount,
+                total: totalCount,
+                rate: percentage,
+                time: timeString
+            };
+            history.push(record);
+            localStorage.setItem('quiz_history', JSON.stringify(history));
 
-            // 更新頂部成績看板
+            // 更新畫面的歷史紀錄
+            renderHistory();
+
+            // 更新頂部/底部成績看板（標註第幾次作答）
+            document.getElementById('top-attempt-num').innerText = `第 ${attemptNum} 次`;
             document.getElementById('top-correct-count').innerText = correctCount;
             document.getElementById('top-total-count').innerText = totalCount;
             document.getElementById('top-percentage').innerText = percentage;
             document.getElementById('top-score-board').style.display = 'block';
 
-            // 更新底部成績看板
+            document.getElementById('bottom-attempt-num').innerText = `第 ${attemptNum} 次`;
             document.getElementById('bottom-correct-count').innerText = correctCount;
             document.getElementById('bottom-total-count').innerText = totalCount;
             document.getElementById('bottom-percentage').innerText = percentage;
             document.getElementById('bottom-score-board').style.display = 'block';
             
-            // 2. 顯示 PDF 解析按鈕連結
+            // 顯示 PDF 解析按鈕與重新作答按鈕
             document.getElementById('explanation-btn').style.display = 'block';
+            document.getElementById('reset-btn').style.display = 'block';
 
-            // 1. 平滑滾動直接跳轉到第 1 題進行訂正
+            alert(`第 ${attemptNum} 次作答對答完成！\n本次得分：${correctCount} / ${totalCount} 題。\n網頁頂部已記錄並列出您的歷史成績！`);
+            
+            // 畫面平滑滾動回第一題供訂正
             document.getElementById('block-q1').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 重新作答功能
+        function resetQuiz() {
+            if (confirm('確定要清除本次答案並重新作答嗎？（您的歷史紀錄將會被保留）')) {
+                // 清空表單
+                document.getElementById('quiz-form').reset();
+
+                // 清除所有題目的正確與錯誤標記顏色
+                for (let q in answers) {
+                    const block = document.getElementById('block-' + q);
+                    block.classList.remove('error', 'correct');
+                }
+
+                // 隱藏得分面板與功能按鈕
+                document.getElementById('top-score-board').style.display = 'none';
+                document.getElementById('bottom-score-board').style.display = 'none';
+                document.getElementById('explanation-btn').style.display = 'none';
+                document.getElementById('reset-btn').style.display = 'none';
+
+                // 滾動回最上方
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
     </script>
 </body>
