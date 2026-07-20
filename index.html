@@ -1,23 +1,522 @@
-<!-- ... existing code ... -->
-    <!-- 測驗內容區 -->
-    <form id="quizForm" class="space-y-6">
-        
-        <!-- ... existing code ... -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 強制防快取設定 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>115年會考國文(第一第二冊範圍)</title>
+    <!-- 引入極簡 Tailwind CSS 與 Inter/微軟正黑體 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* iPad 點擊縮放回饋效果 */
+        .touch-feedback:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
-        <!-- Q5 -->
-        <div class="question-card bg-white p-6 rounded-2xl shadow-sm border border-slate-200" id="q5-card">
-            <div class="flex items-start gap-3 mb-4">
-                <span class="bg-slate-900 text-white text-xs font-bold px-2 py-1 rounded">Q5</span>
-                <div>
-                    <p class="font-medium text-lg">「散文貴在自由&#9633;體例的自由、選材的自由、篇幅的自由、表達思想的自由。寫作者可以依憑自己的認知，採用喜歡的書寫方式。」根據文意脈絡，缺空處最適合填入下列哪一個標點符號？</p>
-                    <span class="reference-tag inline-block text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full mt-1">對應教材：第一冊</span>
+    <!-- 頂部精美標題 -->
+    <header class="bg-slate-900 text-white py-6 px-4 shadow-md text-center mb-6">
+        <h1 class="text-2xl md:text-3xl font-extrabold tracking-wide">115年會考國文(第一第二冊範圍)</h1>
+        <p class="text-sm text-slate-400 mt-2">適合 iPad / 平板 / 電腦作答之互動式複習測驗系統</p>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4">
+
+        <!-- 歷次作答紀錄看板 (iPad & 手機相容) -->
+        <section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-6">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <span>📊</span> 歷次作答成績紀錄 (自動儲存)
+                </h3>
+                <button type="button" class="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wider transition touch-feedback" onclick="openConfirmModal('clearHistory')">
+                    清除歷史紀錄
+                </button>
+            </div>
+            <ul id="history-list-box" class="space-y-2 max-h-36 overflow-y-auto pr-1 text-sm text-slate-600">
+                <!-- 由 JS 動態生成 -->
+            </ul>
+        </section>
+
+        <!-- 頂部即時成績看板 (對答後才會秀出) -->
+        <section id="score-board" class="hidden bg-blue-50 border-2 border-blue-200 rounded-2xl p-5 text-center mb-6 shadow-sm">
+            <h3 class="text-xl font-black text-slate-800 mb-1">
+                🎉 第 <span id="board-attempt-num" class="text-blue-600">1</span> 次作答對答完成！
+            </h3>
+            <p class="text-lg text-slate-700">
+                本次得分：答對 <span id="board-correct-count" class="font-extrabold text-green-600">0</span> 題 / 共 <span id="board-total-count" class="font-bold">16</span> 題 （答對率：<span id="board-percentage" class="font-extrabold text-blue-600">0%</span>）
+            </p>
+        </section>
+
+        <!-- 測驗內容區 -->
+        <form id="quizForm" class="space-y-6">
+            <div id="questions-container" class="space-y-6">
+                <!-- 由 JS 動態完美生成所有 16 題與題組 -->
+            </div>
+
+            <!-- 底部按鈕操作區 -->
+            <div class="space-y-3 pt-6">
+                <button type="button" id="submit-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl text-lg shadow-sm transition touch-feedback" onclick="checkAnswers()">
+                    送出對答
+                </button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <a href="115會考國文解析.pdf" id="explanation-btn" class="hidden w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl text-lg text-center shadow-sm transition touch-feedback" target="_blank">
+                        查看完整 PDF 解析
+                    </a>
+                    <button type="button" id="reset-btn" class="hidden w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 rounded-xl text-lg shadow-sm transition touch-feedback" onclick="openConfirmModal('resetQuiz')">
+                        重新作答
+                    </button>
                 </div>
             </div>
-            <div class="space-y-3">
-                <label class="option-label block cursor-pointer">
-                    <input type="radio" name="q5" value="A" class="hidden">
-<!-- ... existing code ... -->
-```
-eof
+        </form>
+    </main>
 
-我已經將該題目中的框格符號替換為最安全的標準編碼 `&#9633;`，這能確保它在 iPad、手機或電腦的所有瀏覽器環境下都能正確完美顯示。標題也已完美統一。請您直接更新即可！
+    <!-- 自製 iPad 專屬彈窗 (取代 Alert / Confirm 防止 iPad 卡死) -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100 transform transition-all scale-95 duration-150">
+            <h3 id="modal-title" class="text-lg font-bold text-slate-800 mb-2">確認提示</h3>
+            <p id="modal-message" class="text-sm text-slate-600 mb-6">您確定要執行此操作嗎？</p>
+            <div class="flex gap-3">
+                <button type="button" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-sm transition touch-feedback" onclick="closeConfirmModal(false)">
+                    取消
+                </button>
+                <button type="button" id="modal-confirm-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition touch-feedback">
+                    確認
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 網頁對答與渲染主程式碼 -->
+    <script>
+        // 完整的 16 題庫資料集
+        const questionDataset = [
+            {
+                id: "q1",
+                type: "single",
+                text: "下列文句中的「即」字，何者為「靠近」之意？",
+                options: {
+                    A: "被熱水燙傷之後，應該立「即」用大量冷水沖洗",
+                    B: "他們兩個人的關係若「即」若離，真令人難以捉摸",
+                    C: "本活動摸彩中獎者，憑票根「即」可至服務臺領取獎品",
+                    D: "我不是你的傭人，別以為我可以招之「即」來，揮之即去"
+                },
+                answer: "B",
+                reference: "第二冊"
+            },
+            {
+                id: "q2",
+                type: "single",
+                text: "「臺灣泰式餐館幾乎都供應的椒麻雞，其實是出身雲南的混血菜。滇、緬、泰、越、寮位置鄰近，料理自然互相滲透，彼此影響。這道菜傳到泰北，再到臺灣，背景是烽火連天的歲月。像當年孤軍，遊走在滇、緬、泰邊境，流著四川的麻辣血源和泰國的酸辣風格。」關於料理的敘述，下列何者最接近本文的觀點？",
+                options: {
+                    A: "料理會因地緣關係而互相影響",
+                    B: "異鄉遊子對童年吃食特別難忘",
+                    C: "戰火頻仍地區的料理多半偏辣",
+                    D: "餐館會依消費者需求調整口味"
+                },
+                answer: "A",
+                reference: "第二冊"
+            },
+            {
+                id: "q3",
+                type: "single",
+                text: "【資料一】歷史，大多是猜測，剩下的，是偏見。史學家的價值判斷如同一把最尖利的剪刀，剪出他筆下最符合他好惡的形狀。<br>【資料二】史學與時俱變，史學家的解釋也互有出入，那麼歷史究竟有沒有客觀性呢？其實歷史的客觀性是不容懷疑的。史學家從各種角度來觀察歷史，使歷史的面貌越來越清楚。<br>上課時老師提供這兩則資料給同學討論，關於資料的解讀，下列何者的發言最恰當？",
+                options: {
+                    A: "根據資料一，我認為史學家對歷史的猜測不帶偏見",
+                    B: "依照資料二，我看見歷史不一定具有客觀性",
+                    C: "我發現資料一、二都認為我們不可以懷疑史學家的記載",
+                    D: "我覺得資料一、二都認為史學家對歷史會有不同詮釋"
+                },
+                answer: "D",
+                reference: "第二冊"
+            },
+            {
+                id: "q4",
+                type: "single",
+                text: "根據資料判斷，「鬲」最可能屬於下列哪一種造字法則？（《說文解字》：「鬲，鼎屬也，實五穀，斗二升曰觳、象腹交文，三足。」）",
+                options: {
+                    A: "象形",
+                    B: "指事",
+                    C: "會意",
+                    D: "形聲"
+                },
+                answer: "A",
+                reference: "第二冊"
+            },
+            {
+                id: "q5",
+                type: "single",
+                text: "「散文貴在自由&#9633;體例的自由、選材的自由、篇幅的自由、表達思想的自由。寫作者可以依憑自己的認知，採用喜歡的書寫方式。」根據文意脈絡，缺空處最適合填入下列哪一個標點符號？",
+                options: {
+                    A: "、 （頓號）",
+                    B: "？ （問號）",
+                    C: "…… （刪節號）",
+                    D: "—— （破折號）"
+                },
+                answer: "D",
+                reference: "第一冊"
+            },
+            {
+                id: "q6",
+                type: "single",
+                text: "下列文句「」中的字，何者讀音正確？",
+                options: {
+                    A: "海嘯過後，小鎮滿目「瘡」痍：ㄘㄤ",
+                    B: "此事部長的心意已決，不容他人置「喙」：ㄓㄨㄛ",
+                    C: "電影首映會當晚，導演「偕」同主要演員一起出席：ㄒㄧㄝˊ",
+                    D: "這兩者「孰」輕孰重,你要考慮清楚,以免將來後悔：ㄕㄨ"
+                },
+                answer: "C",
+                reference: "第二冊"
+            },
+            {
+                id: "q7",
+                type: "single",
+                text: "《魏三體石經》每字皆刻三種字體，其中二種字體為古文、篆書。據此判斷，字體結構符合「蠶頭雁尾」與「一波三折」特色的第三種字體應為下列何者？",
+                options: {
+                    A: "行書",
+                    B: "草書",
+                    C: "楷書",
+                    D: "隸書"
+                },
+                answer: "D",
+                reference: "第二冊"
+            },
+            {
+                id: "q8",
+                type: "single",
+                text: "所謂的「寫真式描寫」注重的是清楚明確，以細密的筆觸刻畫完整的形象。讓讀者有身歷其境的真實感。其描寫則依次序按部就班，傳達時力求客觀。但既是創作，就不可能像攝影一樣完全「再現」，也難免會滲入少許暗示性、象徵性的語彙。根據本文，下列何者最符合「寫真式描寫」？",
+                options: {
+                    A: "他們明明知道要滴下眉毛上的汗珠，才能撿起田中的麥穗，而為什麼要謝天",
+                    B: "他用兩手攀著上面，兩腳再向上縮，他肥胖的身子向左微傾，顯出努力的樣子",
+                    C: "頃刻間這周遭瀰漫了清晨富麗的溫柔，頃刻間你的心懷也分潤了白天誕生的光榮",
+                    D: "有一些事，卻像夏日的小河、冬天的落葉，像春花，也像秋草，似無所見，又非視而不見"
+                },
+                answer: "B",
+                reference: "第一冊"
+            },
+            {
+                id: "q9",
+                type: "single",
+                text: "齊高帝嘗與王僧虔賭書，書畢，帝曰：「誰為第一？」對曰：「臣書臣中第一、陛下書帝中第一。」帝笑曰：「卿可謂善自謀矣。」然高帝與僧虔賭書，亦猶雞之搏狸，稍不自知量力也。關於文中人物書法的比較，下列敘述何者最恰當？",
+                options: {
+                    A: "作者認為高帝書法不如僧虔",
+                    B: "作者認為子敬書法天下第一",
+                    C: "子敬覺得高帝的草書缺乏風骨",
+                    D: "僧虔自認與高帝賭書猶雞之搏狸"
+                },
+                answer: "A",
+                reference: "第二冊"
+            },
+            {
+                id: "q10",
+                type: "single",
+                text: "下列文句「」中的成語，何者使用最恰當？",
+                options: {
+                    A: "這篇作品文采出眾，「胸無點墨」的人是寫不出來的",
+                    B: "辛勤工作之餘也要適時休息，才能達到「休戚與共」",
+                    C: "這兩個友好的國家交流往來頻繁，關係「間不容髮」",
+                    D: "他嚮往「瓜田李下」的鄉間生活，毫不猶豫搬離市區"
+                },
+                answer: "A",
+                reference: "第一冊"
+            },
+            {
+                id: "q11",
+                type: "reading",
+                group: "g1",
+                readingContext: "<strong>【第二市場的故事味（節錄） 顏艾琳】</strong><br><br>【麻薏】<br>夏天的野性是限量的，把它搓擠出來。洗成一碗滑潤的溫柔。<br>啊！原來夏天如此爽口，那深綠色的苦鹹甜，是去年與誰的故事？<br><br>【黑白切】<br>一盤切碎的心肝腸肺隨意地被夾起，咀嚼一種零零落落，毫無秩序的酸甜苦辣。<br>分明是一道小菜，卻讓黑與白拼出了生活的色香味。",
+                text: "關於這二節詩的分析，下列敘述何者最恰當？",
+                options: {
+                    A: "第一節以「野性」暗示作者正值年少",
+                    B: "第二節以「切碎」呼應「零零落落」",
+                    C: "第一節穿插驚嘆語句，表達吃不到的遺憾",
+                    D: "第二節藉心肝腸肺的描摹，象徵人心險惡"
+                },
+                answer: "B",
+                reference: "第二冊"
+            },
+            {
+                id: "q12",
+                type: "reading",
+                group: "g1",
+                text: "關於這二節詩的共同點，下列敘述何者最恰當？",
+                options: {
+                    A: "皆透過描寫食物帶出生活的況味",
+                    B: "皆引用典故連結食物與文化的關係",
+                    C: "皆各自運用兩種顏色的對比，意象鮮明",
+                    D: "皆以當季食材入詩，強調美好事物稍縱即逝"
+                },
+                answer: "A",
+                reference: "第二冊"
+            },
+            {
+                id: "q13",
+                type: "reading",
+                group: "g2",
+                readingContext: "<strong>【唐代翰林制度】</strong><br><br>唐玄宗時，翰林有三種：翰林待詔、翰林供奉、翰林學士。<br>翰林待詔這個群體很雜，有詩人，有畫家，有經學家、有書法家，有醫生，還有算命先生。這些人被唐玄宗包養起來，辦公之餘，或者出遊的時候，把他們喊過去，陪著玩耍，說穿了，就是「幫閒」。<br>翰林供奉是翰林待詔裡的佼佼者，譬如說，你寫文章寫得非常漂亮，遠遠超過別的翰林待詔，皇帝喊你喊得特別頻繁，今天讓你寫這個，明天讓你寫那個，甚至讓你幫他處理奏章，那麼你就成了翰林供奉。<br>翰林學士又是翰林供奉裡的佼佼者，不光文筆一流，還通曉政治。朝廷把這批人才從待詔和供奉裡發掘出來，讓他們單獨辦公。<br>不管是翰林待詔、翰林供奉，還是翰林學士，都沒有專門的品級。不過翰林學士一般兼有其他職務，既是翰林學士，又是戶部尚書、禮部尚書、兵部侍郎、吏部侍郎等等。雖然翰林學士不領薪水，但是尚書、侍郎卻有不菲的薪水。翰林待詔和翰林供奉大都不兼職，可是他們卻有薪水，其中翰林待詔的薪水參照九品京官。翰林供奉的薪水參照八品京官。",
+                text: "關於文中翰林供奉的敘述，下列何者最恰當？",
+                options: {
+                    A: "可獨立辦公",
+                    B: "有很多兼職收入",
+                    C: "薪水比照八品京官",
+                    D: "不能幫皇帝處理奏章"
+                },
+                answer: "C",
+                reference: "第一冊"
+            },
+            {
+                id: "q14",
+                type: "reading",
+                group: "g2",
+                text: "根據本文，下列推論何者最恰當？",
+                options: {
+                    A: "尚書和侍郎通常也兼任翰林供奉",
+                    B: "翰林學士處理政務的能力優於翰林供奉",
+                    C: "翰林待詔是唐玄宗重要的行政幕僚之一",
+                    D: "翰林待詔與翰林學士的差別在專門品級的高低"
+                },
+                answer: "B",
+                reference: "第一冊"
+            },
+            {
+                id: "q15",
+                type: "reading",
+                group: "g3",
+                readingContext: "<strong>【東非生態圈景觀研究】</strong><br><br>東非草原上，一種金合歡樹提供原生舉尾蟻花蜜與住所，而舉尾蟻會保護金合歡免受食草性動物侵害，並攻擊啃食金合歡的非洲象。21世紀初，外來的熱帶大頭家蟻突然出現在肯亞，牠們會殺死舉尾蟻並吃掉其幼體，讓非洲象得以肆無忌憚地啃食金合歡。<br>另一方面，金合歡減少，也令獅子在捕獵斑馬時難以掩蔽。研究團隊為了解金合歡減少是否會影響獅子獵食，在肯亞保護區的稀樹草原上建立十幾個研究區塊，追蹤金合歡景觀變化、斑馬族群密度、熱帶大頭家蟻出現情況以及獅子殺死斑馬的情況。<br>經過3年的監測，團隊發現沒有舉尾蟻的金合歡被非洲象破壞的速度，比有舉尾蟻的樹快5~7倍，這些區域的金合歡覆蓋面積急劇減少，使獅子很難偷偷靠近並伏擊斑馬。而沒有熱帶大頭家蟻入侵的地區，斑馬遭獅子獵殺的情況較前者高出兩倍以上。<br>令人驚訝的是，雖然接觸主要獵物的機會減少，但研究區域的獅子數量卻保持穩定。根據其他研究數據，團隊發現當地獅子另外增加捕獵的對象：從2003年到2020年，獅子獵殺斑馬的比例從67%下降到42%，而獵殺水牛的比例從0%增加到42%。<br>針對這樣的結果，專家認為：這些入侵的螞蟻可能早就出現，但沒有人注意。我們現在發現牠們以非常微妙的方式改變了生態景觀。",
+                text: "根據本文，關於熱帶大頭家蟻入侵肯亞保護區後的生態變化，下列敘述何者最恰當？",
+                options: {
+                    A: "獅子數量減少",
+                    B: "斑馬易受獅子攻擊",
+                    C: "金合歡易受大象破壞",
+                    D: "舉尾蟻不再攻擊大象"
+                },
+                answer: "C",
+                reference: "第一冊"
+            },
+            {
+                id: "q16",
+                type: "reading",
+                group: "g3",
+                text: "依據本文引述的研究發現，無法說明下列何者？",
+                options: {
+                    A: "設置保護區有助於維護自然原始生態",
+                    B: "外來物種可能會對本地生態造成衝擊",
+                    C: "面對環境的變遷，生命自會找到出路",
+                    D: "破壞生物間的互利關係恐有連鎖反應"
+                },
+                answer: "A",
+                reference: "第一冊"
+            }
+        ];
+
+        // 動態生成 HTML 試題卡片
+        function renderQuiz() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+            let currentGroup = "";
+
+            questionDataset.forEach((q, index) => {
+                // 如果是題組，且遇到了新的題組背景，就渲染背景說明區
+                if (q.type === 'reading' && q.group !== currentGroup) {
+                    currentGroup = q.group;
+                    const contextDiv = document.createElement('div');
+                    contextDiv.className = 'bg-slate-100 border-l-4 border-slate-600 p-5 rounded-r-xl my-4 text-sm text-slate-700 leading-relaxed';
+                    contextDiv.innerHTML = q.readingContext;
+                    container.appendChild(contextDiv);
+                }
+
+                // 生成單題卡片
+                const card = document.createElement('div');
+                card.id = `block-${q.id}`;
+                card.className = 'question-card bg-white p-6 rounded-2xl shadow-sm border border-slate-200 transition-all duration-300';
+                
+                // 題目敘述
+                let cardHTML = `
+                    <div class="flex items-start gap-3 mb-4">
+                        <span class="bg-slate-800 text-white text-xs font-black px-2 py-1 rounded">Q${index + 1}</span>
+                        <div class="flex-1">
+                            <p class="font-bold text-slate-800 text-base leading-relaxed">${q.text}</p>
+                            <span class="reference-tag inline-block text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full mt-2">
+                                對應教材：${q.reference}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                `;
+
+                // 渲染 A, B, C, D 選項大觸控按鈕
+                for (let key in q.options) {
+                    cardHTML += `
+                        <label class="option-label block cursor-pointer p-4 rounded-xl border border-slate-200 hover:bg-slate-50 transition active:scale-[0.99] touch-feedback">
+                            <input type="radio" name="${q.id}" value="${key}" class="mr-3 transform scale-125 accent-blue-600">
+                            <span class="text-slate-700 font-medium">${key === 'A' ? '(A)' : key === 'B' ? '(B)' : key === 'C' ? '(C)' : '(D)'} ${q.options[key]}</span>
+                        </label>
+                    `;
+                }
+
+                cardHTML += `
+                    </div>
+                    <div class="error-message text-red-600 font-bold mt-4 pt-3 border-t border-dashed border-red-200 text-sm">
+                        ❌ 答錯了！請再想想看。
+                    </div>
+                `;
+
+                card.innerHTML = cardHTML;
+                container.appendChild(card);
+            });
+        }
+
+        // 取得本機歷史紀錄
+        function getHistory() {
+            const data = localStorage.getItem('quiz_history_v115');
+            return data ? JSON.parse(data) : [];
+        }
+
+        // 渲染歷史成績
+        function renderHistory() {
+            const history = getHistory();
+            const box = document.getElementById('history-list-box');
+            box.innerHTML = '';
+
+            if (history.length === 0) {
+                box.innerHTML = '<li class="text-center text-slate-400 py-4">尚未有任何作答紀錄。</li>';
+                return;
+            }
+
+            history.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'border-b border-slate-100 py-2 flex justify-between items-center';
+                li.innerHTML = `
+                    <span>📋 第 <strong>${item.attempt}</strong> 次作答 (${item.time})</span>
+                    <span class="font-bold text-slate-700">得分：<strong class="text-blue-600">${item.score}</strong> / ${item.total} 題 (${item.rate})</span>
+                `;
+                box.appendChild(li);
+            });
+        }
+
+        // 送出對答與批改
+        function checkAnswers() {
+            let correctCount = 0;
+            const totalCount = questionDataset.length;
+
+            questionDataset.forEach(q => {
+                const card = document.getElementById(`block-${q.id}`);
+                const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+
+                card.classList.remove('error', 'correct', 'bg-red-50/20', 'bg-emerald-50/20', 'border-red-200', 'border-emerald-200');
+
+                if (!selected) {
+                    // 未作答直接算錯
+                    card.classList.add('error', 'bg-red-50/20', 'border-red-200');
+                } else if (selected.value === q.answer) {
+                    card.classList.add('correct', 'bg-emerald-50/20', 'border-emerald-200');
+                    correctCount++;
+                } else {
+                    card.classList.add('error', 'bg-red-50/20', 'border-red-200');
+                }
+            });
+
+            const percentage = Math.round((correctCount / totalCount) * 100) + '%';
+            
+            // 寫入 localStorage 紀錄
+            const history = getHistory();
+            const attemptNum = history.length + 1;
+            const now = new Date();
+            const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            history.push({
+                attempt: attemptNum,
+                score: correctCount,
+                total: totalCount,
+                rate: percentage,
+                time: timeStr
+            });
+            localStorage.setItem('quiz_history_v115', JSON.stringify(history));
+
+            // 更新歷史與成績看板
+            renderHistory();
+            document.getElementById('board-attempt-num').innerText = attemptNum;
+            document.getElementById('board-correct-count').innerText = correctCount;
+            document.getElementById('board-total-count').innerText = totalCount;
+            document.getElementById('board-percentage').innerText = percentage;
+            document.getElementById('score-board').style.display = 'block';
+
+            // 展開控制按鈕
+            document.getElementById('explanation-btn').classList.remove('hidden');
+            document.getElementById('reset-btn').classList.remove('hidden');
+
+            // 滾動回 Q1 位置進行檢查
+            document.getElementById('block-q1').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 自製 iPad 專屬彈窗管理
+        let currentAction = null;
+
+        function openConfirmModal(action) {
+            currentAction = action;
+            const modal = document.getElementById('custom-modal');
+            const title = document.getElementById('modal-title');
+            const msg = document.getElementById('modal-message');
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+
+            if (action === 'clearHistory') {
+                title.innerText = '清除歷史紀錄';
+                msg.innerText = '您確定要清除所有的歷史作答成績嗎？此動作將無法復原！';
+                confirmBtn.className = 'flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-sm transition';
+            } else if (action === 'resetQuiz') {
+                title.innerText = '重新作答確認';
+                msg.innerText = '確定要清除目前所有勾選答案並重新作答嗎？（歷史紀錄仍會保留）';
+                confirmBtn.className = 'flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition';
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            confirmBtn.onclick = () => {
+                closeConfirmModal(true);
+            };
+        }
+
+        function closeConfirmModal(confirmed) {
+            const modal = document.getElementById('custom-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+
+            if (confirmed && currentAction === 'clearHistory') {
+                localStorage.removeItem('quiz_history_v115');
+                renderHistory();
+            } else if (confirmed && currentAction === 'resetQuiz') {
+                // 清空勾選
+                document.getElementById('quizForm').reset();
+                
+                // 還原所有卡片顏色與提示
+                questionDataset.forEach(q => {
+                    const card = document.getElementById(`block-${q.id}`);
+                    card.classList.remove('error', 'correct', 'bg-red-50/20', 'bg-emerald-50/20', 'border-red-200', 'border-emerald-200');
+                });
+
+                // 隱藏批改看板與按鈕
+                document.getElementById('score-board').style.display = 'none';
+                document.getElementById('explanation-btn').classList.add('hidden');
+                document.getElementById('reset-btn').classList.add('hidden');
+
+                // 滾回頂部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            currentAction = null;
+        }
+
+        // 初始化渲染
+        renderQuiz();
+    </script>
+</body>
+</html>
